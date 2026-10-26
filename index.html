@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Venta por mudanza</title>
+<style>
+  :root {
+    --fondo: #f2f8fd;
+    --tarjeta: #ffffff;
+    --texto: #1f3550;
+    --suave: #6b819b;
+    --durazno: #fff0b8;   /* reservado: amarillo manteca */
+    --menta: #c8ecda;     /* disponible */
+    --lila: #dcebf8;      /* fondo de fotos vacías */
+    --celeste: #d6eaf9;
+    --acento: #4a9fd8;    /* azul cielo */
+    --whatsapp: #2f9e62;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+    font-size: 17px;
+    line-height: 1.45;
+  }
+  header {
+    background: linear-gradient(135deg, #bfe0f7, #8ec7ee);
+    padding: 28px 20px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 8px; font-size: 1.7rem; }
+  header p { margin: 0; }
+  .aviso-retiro {
+    background: #fff; border-radius: 14px; padding: 12px 18px;
+    margin: 18px auto 0; max-width: 520px; font-weight: 600;
+    box-shadow: 0 2px 8px rgba(31,53,80,0.10);
+  }
+  .aviso-retiro span { color: var(--acento); }
+  .filtros {
+    display: flex; gap: 8px; justify-content: center;
+    flex-wrap: wrap; padding: 18px 14px;
+  }
+  .filtros button {
+    border: none; border-radius: 999px; padding: 11px 18px;
+    font-size: 1rem; background: var(--celeste); color: var(--texto);
+    cursor: pointer;
+  }
+  .filtros button.activo { background: var(--acento); color: #fff; }
+
+  /* Dos columnas siempre */
+  .grilla {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px; padding: 0 14px 40px; max-width: 900px; margin: 0 auto;
+  }
+  .tarjeta {
+    background: var(--tarjeta); border-radius: 18px; overflow: hidden;
+    box-shadow: 0 4px 14px rgba(31,53,80,0.10); cursor: pointer;
+    position: relative; transition: transform 0.15s;
+  }
+  .tarjeta:hover { transform: translateY(-3px); }
+  .tarjeta img { width: 100%; height: 150px; object-fit: cover; display: block; background: var(--lila); }
+  .tarjeta .info { padding: 12px; }
+  .tarjeta h3 { margin: 0 0 8px; font-size: 1rem; }
+
+  /* Precios: los dos visibles, con etiqueta, sin tachar */
+  .precios { display: flex; flex-direction: column; gap: 4px; }
+  .fila-precio { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .fila-precio .rotulo { font-size: 0.8rem; color: var(--suave); }
+  .mercado { font-size: 0.95rem; }
+  .venta { font-size: 1.2rem; font-weight: 700; }
+
+  .sello {
+    position: absolute; left: 0; right: 0; top: 0; height: 150px;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none; z-index: 2;
+  }
+  .sello span {
+    transform: rotate(-16deg);
+    background: rgba(255,240,184,0.2); color: rgba(107,72,0,0.9);
+    border: 4px solid rgba(217,164,0,0.55); border-radius: 12px;
+    padding: 4px 14px; font-weight: 800; font-size: 1.35rem; letter-spacing: 0.08em;
+    text-shadow: 0 0 6px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,0.9);
+  }
+  .sello.vendido span {
+    background: rgba(214,226,238,0.2); color: rgba(43,63,86,0.9);
+    border-color: rgba(70,95,125,0.55);
+  }
+  .foto-wrap { position: relative; }
+  .foto-wrap .sello { height: 100%; }
+  .foto-wrap .sello span { font-size: 2rem; padding: 6px 22px; }
+  .tarjeta.sin-clic { cursor: default; }
+  .tarjeta.sin-clic:hover { transform: none; }
+  .etiqueta {
+    position: absolute; top: 10px; left: 10px;
+    padding: 4px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+  }
+  .etiqueta.disponible { background: var(--menta); }
+  .etiqueta.reservado { background: var(--durazno); }
+  .etiqueta.vendido { background: #dde6ee; color: var(--suave); }
+  .tarjeta.vendido img { filter: grayscale(1); opacity: 0.75; }
+
+  .fondo-modal {
+    display: none; position: fixed; inset: 0;
+    background: rgba(31,53,80,0.55); z-index: 10;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .fondo-modal.abierto { display: flex; }
+  .modal {
+    background: var(--tarjeta); border-radius: 24px; max-width: 520px;
+    width: 100%; max-height: 92vh; overflow-y: auto; position: relative;
+  }
+  .modal img { width: 100%; max-height: 320px; object-fit: cover; display: block; background: var(--lila); }
+  .modal .cuerpo { padding: 22px; }
+  .modal h2 { margin: 0 0 10px; }
+  .modal .fila-precio .rotulo { font-size: 0.9rem; }
+  .modal .mercado { font-size: 1.05rem; }
+  .modal .venta { font-size: 1.5rem; }
+  .cerrar {
+    position: absolute; top: 12px; right: 12px; width: 44px; height: 44px;
+    border-radius: 50%; border: none; background: #fff; font-size: 1.4rem;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 5;
+  }
+  .dato { background: var(--fondo); border-radius: 14px; padding: 12px 16px; margin: 12px 0; }
+  .dato strong { display: block; color: var(--suave); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .btn-wsp {
+    display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;
+    background: var(--whatsapp); color: #fff; font-weight: 700;
+    padding: 16px; border-radius: 16px; font-size: 1.1rem; margin-top: 16px;
+  }
+  .btn-wsp.apagado { background: #c5d3e0; pointer-events: none; }
+  footer { text-align: center; color: var(--suave); padding: 20px; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Venta por mudanza</h1>
+  <p>Tocá un artículo para ver el detalle y escribirme.</p>
+  <div class="aviso-retiro" id="avisoRetiro"></div>
+</header>
+
+<div class="filtros" id="filtros">
+  <button class="activo" data-filtro="todos">Todos</button>
+  <button data-filtro="disponible">Disponibles</button>
+  <button data-filtro="reservado">Reservados</button>
+  <button data-filtro="vendido">Vendidos</button>
+</div>
+
+<main class="grilla" id="grilla"></main>
+
+<div class="fondo-modal" id="fondoModal">
+  <div class="modal" id="modal"></div>
+</div>
+
+<footer>Consultame por WhatsApp.</footer>
+
+<script>
+  // ====== DATOS QUE EDITÁS VOS ======
+  const CONFIG = {
+    whatsapp: "59899452458",   // número con código de país, sin + ni espacios
+    moneda: "$",
+    fechaRetiro: "durante Febrero"   // dejalo vacío ("") para ocultar el cartel
+  };
+
+  const ARTICULOS = [
+  {
+    "nombre": "Cochecito",
+    "foto": "fotos/cochecito.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Bici Emi",
+    "foto": "fotos/bici-emi.jpg",
+    "precioMercado": 5500,
+    "precioVenta": 3000,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Alfombra chica",
+    "foto": "fotos/alfombra-chica.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Alfombra grande",
+    "foto": "fotos/alfombra-grande.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Torre Marti",
+    "foto": "fotos/torre-marti.jpg",
+    "precioMercado": 6000,
+    "precioVenta": 3000,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Lavavajillas",
+    "foto": "fotos/lavavajillas.jpg",
+    "precioMercado": 6000,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Caloventilador Xion 1000/2000 W, negro",
+    "foto": "fotos/caloventilador.jpg",
+    "precioMercado": 800,
+    "precioVenta": 500,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Ventilador de pie",
+    "foto": "fotos/ventilador-de-pie.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Ventilador negro",
+    "foto": "fotos/ventilador-negro.jpg",
+    "precioMercado": 2000,
+    "precioVenta": 1200,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Teles x 2",
+    "foto": "fotos/teles.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Monitor",
+    "foto": "fotos/monitor.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Sommier y colchón",
+    "foto": "fotos/sommier-colchon.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Juego de jardín: sillón con chaise + mesa",
+    "foto": "fotos/juego-jardin-sillon.jpg",
+    "precioMercado": 25000,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Mueble TV",
+    "foto": "fotos/mueble-tv.jpg",
+    "precioMercado": 40000,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Lavarropas Samsung Inverter 7 kg, carga frontal",
+    "foto": "fotos/lavarropas.jpg",
+    "precioMercado": 28000,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Cama funcional y cama Emi",
+    "foto": "fotos/camas.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Escritorio de trabajo",
+    "foto": "fotos/escritorio.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Heladera",
+    "foto": "fotos/heladera.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Auto",
+    "foto": "fotos/auto.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Cosas de playa",
+    "foto": "fotos/cosas-de-playa.jpg",
+    "precioMercado": 0,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Aspiradora Punktal PK-8208 2 l 1600 W",
+    "foto": "fotos/aspiradora.jpg",
+    "precioMercado": 2400,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Bañito de bebé plegable con termómetro",
+    "foto": "fotos/banito-bebe.jpg",
+    "precioMercado": 2300,
+    "precioVenta": 0,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "disponible"
+  },
+  {
+    "nombre": "Casa para perro Rimax 58,5x61x68 cm, naranja",
+    "foto": "fotos/casa-perro.jpg",
+    "precioMercado": 2200,
+    "precioVenta": 1000,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "vendido"
+  },
+  {
+    "nombre": "Juego de jardín o balcón: mesa de vidrio + 2 sillas de ratán",
+    "foto": "fotos/juego-jardin-mesa.jpg",
+    "precioMercado": 3200,
+    "precioVenta": 2500,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "vendido"
+  },
+  {
+    "nombre": "Bici Jesi",
+    "foto": "fotos/bici-jesi.jpg",
+    "precioMercado": 0,
+    "precioVenta": 8000,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "vendido"
+  },
+  {
+    "nombre": "Perchero de bambú con ruedas y estante",
+    "foto": "fotos/perchero-bambu.jpg",
+    "precioMercado": 1000,
+    "precioVenta": 700,
+    "usado": "A confirmar",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "estado": "vendido"
+  }
+];;
+  // ====== FIN DE LO QUE EDITÁS ======
+
+  const nombresEstado = { disponible: "Disponible", reservado: "Reservado", vendido: "Vendido" };
+  const grilla = document.getElementById("grilla");
+  const fondoModal = document.getElementById("fondoModal");
+  const modal = document.getElementById("modal");
+
+  const SIN_FOTO = "data:image/svg+xml;utf8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#dcebf8"/><text x="200" y="160" font-family="sans-serif" font-size="22" fill="#8a869a" text-anchor="middle">Foto próximamente</text></svg>'
+  );
+
+  function sello(a) {
+    if (a.estado === "reservado") return '<div class="sello reservado"><span>RESERVADO</span></div>';
+    if (a.estado === "vendido") return '<div class="sello vendido"><span>VENDIDO</span></div>';
+    return "";
+  }
+
+  function precio(n) { return n > 0 ? CONFIG.moneda + n.toLocaleString("es-UY") : "Consultar precio"; }
+
+  function bloquePrecios(a) {
+    if (!(a.precioMercado > 0) && !(a.precioVenta > 0)) {
+      return `<div class="precios">
+        <div class="fila-precio"><span class="venta" style="font-size:1rem">Consultar precio</span></div>
+      </div>`;
+    }
+    return `<div class="precios">
+      <div class="fila-precio"><span class="rotulo">Precio mercado</span><span class="mercado">${precio(a.precioMercado)}</span></div>
+      <div class="fila-precio"><span class="rotulo">Precio de venta</span><span class="venta">${precio(a.precioVenta)}</span></div>
+    </div>`;
+  }
+
+
+  function dibujar(filtro) {
+    grilla.innerHTML = "";
+    ARTICULOS.forEach((a, i) => {
+      if (filtro !== "todos" && a.estado !== filtro) return;
+      const t = document.createElement("div");
+      t.className = "tarjeta " + a.estado;
+      t.innerHTML = `
+        <span class="etiqueta ${a.estado}">${nombresEstado[a.estado]}</span>
+        <img src="${a.foto}" alt="${a.nombre}" onerror="this.onerror=null;this.src='${SIN_FOTO}'">
+        ${sello(a)}
+        <div class="info">
+          <h3>${a.nombre}</h3>
+          ${bloquePrecios(a)}
+        </div>`;
+      if (a.estado === "disponible") { t.onclick = () => abrir(i); } else { t.classList.add("sin-clic"); }
+      grilla.appendChild(t);
+    });
+  }
+
+  function abrir(i) {
+    const a = ARTICULOS[i];
+    const mensaje = encodeURIComponent("Hola Nico! Me interesa: " + a.nombre);
+    const disponible = a.estado !== "vendido";
+    modal.innerHTML = `
+      <button class="cerrar" onclick="cerrar()" aria-label="Cerrar">✕</button>
+      <div class="foto-wrap"><img src="${a.foto}" alt="${a.nombre}" onerror="this.onerror=null;this.src='${SIN_FOTO}'">${sello(a)}</div>
+      <div class="cuerpo">
+        <span class="etiqueta ${a.estado}" style="position:static;display:inline-block;margin-bottom:10px">${nombresEstado[a.estado]}</span>
+        <h2>${a.nombre}</h2>
+        ${bloquePrecios(a)}
+        <p>${a.descripcion}</p>
+        <div class="dato"><strong>Estado de uso</strong>${a.usado}</div>
+        <a class="btn-wsp ${disponible ? "" : "apagado"}" href="https://wa.me/${CONFIG.whatsapp}?text=${mensaje}" target="_blank" rel="noopener">
+          ${disponible ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.100 3.200 5.100 4.500 1.900.800 2.600.900 3.500.800.600-.100 1.700-.700 2-1.400.200-.700.200-1.300.200-1.400-.100-.100-.300-.200-.600-.300zM12 2C6.500 2 2 6.500 2 12c0 1.800.5 3.500 1.300 5L2 22l5.200-1.300c1.400.8 3 1.200 4.800 1.200 5.500 0 10-4.500 10-10S17.500 2 12 2zm0 18.200c-1.500 0-3-.4-4.200-1.200l-.3-.2-3.100.8.8-3-.2-.3C4.200 15 3.800 13.500 3.800 12c0-4.500 3.700-8.200 8.200-8.200s8.200 3.700 8.200 8.200-3.700 8.200-8.200 8.200z"/></svg><span>Consúltame al WhatsApp</span>` : "Ya fue vendido"}
+        </a>
+      </div>`;
+    fondoModal.classList.add("abierto");
+  }
+
+  function cerrar() { fondoModal.classList.remove("abierto"); }
+  fondoModal.onclick = e => { if (e.target === fondoModal) cerrar(); };
+  document.addEventListener("keydown", e => { if (e.key === "Escape") cerrar(); });
+
+  document.getElementById("filtros").onclick = e => {
+    if (e.target.tagName !== "BUTTON") return;
+    document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("activo"));
+    e.target.classList.add("activo");
+    dibujar(e.target.dataset.filtro);
+  };
+
+  const aviso = document.getElementById("avisoRetiro");
+  if (CONFIG.fechaRetiro) {
+    aviso.innerHTML = "📅 Se retira <span>" + CONFIG.fechaRetiro + "</span>";
+  } else {
+    aviso.style.display = "none";
+  }
+
+  dibujar("todos");
+</script>
+</body>
+</html>
