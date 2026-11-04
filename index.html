@@ -189,22 +189,24 @@
     <span>¿Otra consulta? Escribime</span>
   </a>
 </div>
-<footer>Venta por mudanza · Retiro durante Febrero</footer>
+<footer id="piePagina"></footer>
 
 <script>
   // ====== DATOS QUE EDITÁS VOS ======
   const CONFIG = {
     whatsapp: "59899452458",   // número con código de país, sin + ni espacios
     moneda: "$",
-    fechaRetiro: "durante Febrero"   // dejalo vacío ("") para ocultar el cartel
+    fechaRetiro: "durante febrero de 2027",   // dejalo vacío ("") para ocultar el cartel
+    zonaRetiro: "Buceo, Montevideo",
+    notaRetiro: ""
   };
 
   const ARTICULOS = [
   {
-    "nombre": "Cochecito",
+    "nombre": "Cochecito Carestino Kiev",
     "foto": "fotos/cochecito.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 14500,
+    "precioVenta": 8000,
     "usado": "Muy bueno",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -230,8 +232,8 @@
   {
     "nombre": "Alfombra chica",
     "foto": "fotos/alfombra-chica.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 2000,
+    "precioVenta": 1000,
     "usado": "Muy bueno",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -239,8 +241,8 @@
   {
     "nombre": "Alfombra grande",
     "foto": "fotos/alfombra-grande.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 4000,
+    "precioVenta": 2000,
     "usado": "Muy bueno",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -284,8 +286,8 @@
   {
     "nombre": "Ventilador de pie",
     "foto": "fotos/ventilador-de-pie.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 2500,
+    "precioVenta": 1500,
     "usado": "Muy bueno",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -302,8 +304,8 @@
   {
     "nombre": "Tele living",
     "foto": "fotos/tele-living.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 24000,
+    "precioVenta": 18000,
     "usado": "Excelente",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -318,10 +320,10 @@
     "estado": "disponible"
   },
   {
-    "nombre": "Monitor",
+    "nombre": "Monitor LG 24MP400",
     "foto": "fotos/monitor.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 4500,
+    "precioVenta": 2500,
     "usado": "Excelente",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -329,8 +331,8 @@
   {
     "nombre": "Sommier y colchón",
     "foto": "fotos/sommier-colchon.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 20000,
+    "precioVenta": 14000,
     "usado": "Excelente",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -347,8 +349,8 @@
   {
     "nombre": "Rack TV - Divino",
     "foto": "fotos/rack-tv.jpg",
-    "precioMercado": 40000,
-    "precioVenta": 32000,
+    "precioMercado": 24000,
+    "precioVenta": 18000,
     "usado": "Excelente",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -365,8 +367,8 @@
   {
     "nombre": "Cama funcional - Divino",
     "foto": "fotos/cama-funcional.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 24000,
+    "precioVenta": 18000,
     "usado": "Excelente",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -374,8 +376,8 @@
   {
     "nombre": "Cama Emi - Divino",
     "foto": "fotos/cama-emi.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 24000,
+    "precioVenta": 18000,
     "usado": "Excelente",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -383,26 +385,27 @@
   {
     "nombre": "Escritorio de trabajo",
     "foto": "fotos/escritorio.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 2500,
+    "precioVenta": 1500,
     "usado": "Muy bueno",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
   },
   {
-    "nombre": "Heladera",
+    "nombre": "Heladera LG GT29WPPDC",
     "foto": "fotos/heladera.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 23200,
+    "precioVenta": 16000,
     "usado": "Muy bueno",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
   },
   {
     "nombre": "Auto",
+    "moneda": "USD",
     "foto": "fotos/auto.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
+    "precioMercado": 23000,
+    "precioVenta": 19000,
     "usado": "Muy bueno",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -419,9 +422,9 @@
   {
     "nombre": "Cosas de playa",
     "foto": "fotos/cosas-de-playa.jpg",
-    "precioMercado": 0,
-    "precioVenta": 0,
-    "usado": "",
+    "precioMercado": 3000,
+    "precioVenta": 1000,
+    "usado": "Muy bueno",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
   },
@@ -461,7 +464,7 @@
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "vendido"
   }
-];;
+];
   // ====== FIN DE LO QUE EDITÁS ======
 
   const nombresEstado = { disponible: "Disponible", reservado: "Reservado", vendido: "Vendido" };
@@ -479,7 +482,7 @@
     return "";
   }
 
-  function precio(n) { return n > 0 ? CONFIG.moneda + n.toLocaleString("es-UY") : "Consultar precio"; }
+  function precio(n, moneda = CONFIG.moneda) { return n > 0 ? (moneda === "USD" ? "USD " : moneda) + n.toLocaleString("es-UY") : "Consultar precio"; }
 
   function bloquePrecios(a) {
     if (!(a.precioVenta > 0)) {
@@ -488,7 +491,7 @@
       </div>`;
     }
     return `<div class="precios">
-      <div class="fila-precio"><span class="rotulo">Precio</span><span class="venta">${precio(a.precioVenta)}</span></div>
+      <div class="fila-precio"><span class="rotulo">Precio</span><span class="venta">${precio(a.precioVenta, a.moneda)}</span></div>
     </div>`;
   }
 
@@ -549,12 +552,15 @@
 
   const aviso = document.getElementById("avisoRetiro");
   if (CONFIG.fechaRetiro) {
-    aviso.innerHTML = "📅 Se retira <span>" + CONFIG.fechaRetiro + "</span>";
+    aviso.innerHTML = "📅 Se retira <span>" + CONFIG.fechaRetiro + "</span>" +
+      (CONFIG.zonaRetiro ? "<br>📍 " + CONFIG.zonaRetiro : "") +
+      (CONFIG.notaRetiro ? '<br><small style="font-weight:400">' + CONFIG.notaRetiro + "</small>" : "");
   } else {
     aviso.style.display = "none";
   }
 
   const nDisp = ARTICULOS.filter(a => a.estado === "disponible").length;
+  document.getElementById("piePagina").textContent = ["Venta por mudanza", CONFIG.zonaRetiro, CONFIG.fechaRetiro ? "Retiro " + CONFIG.fechaRetiro : ""].filter(Boolean).join(" · ");
   document.getElementById("contador").innerHTML = "<b>" + nDisp + " de " + ARTICULOS.length + "</b> artículos disponibles";
   document.getElementById("btnGeneral").href = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent("Hola Nico! Tengo una consulta sobre la venta por mudanza.");
 
