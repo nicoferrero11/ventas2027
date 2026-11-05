@@ -66,24 +66,21 @@
     transform: rotate(45deg); transition: transform 0.15s;
   }
   .orden-desplegable[open] summary::after { transform: rotate(225deg); }
-  .orden-elegido { color: var(--suave); font-size: 0.8rem; margin-left: auto; }
-  .ordenar { display: flex; align-items: center; gap: 12px; padding: 8px 0 4px; }
-  .ordenar label { font-size: 0.9rem; font-weight: 600; white-space: nowrap; }
-  .ordenar select {
-    flex: 1; min-width: 0; min-height: 46px; padding: 10px 12px;
-    border: 1px solid #bfd5e6; border-radius: 12px; font: inherit;
-    font-size: 1rem; color: var(--texto); background: #fff; cursor: pointer;
+  .opciones-orden { border: 0; padding: 4px 0; margin: 0; min-width: 0; }
+  .opciones-orden label {
+    display: flex; align-items: center; gap: 10px; min-height: 46px;
+    padding: 9px 12px; border-radius: 10px; cursor: pointer; font-size: 0.95rem;
   }
-  .nota-orden { margin: 8px 0 14px; color: var(--suave); font-size: 0.8rem; }
-  .filtros button:focus-visible, .ordenar select:focus-visible, summary:focus-visible {
+  .opciones-orden label:hover { background: #e8f4fe; }
+  .opciones-orden label:has(input:checked) { background: #e8f4fe; color: #2268a8; font-weight: 600; }
+  .opciones-orden input { margin: 0; width: 18px; height: 18px; accent-color: #3483cf; flex: 0 0 auto; }
+  .nota-orden { margin: 8px 12px 14px; color: var(--suave); font-size: 0.8rem; }
+  .filtros button:focus-visible, .opciones-orden input:focus-visible, summary:focus-visible {
     outline: 3px solid var(--acento); outline-offset: 2px;
   }
   .resultado { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .vacio { grid-column: 1 / -1; text-align: center; padding: 28px 16px; color: var(--suave); }
-  @media (max-width: 380px) {
-    .ordenar { flex-direction: column; align-items: stretch; gap: 6px; }
-    .orden-elegido { max-width: 48%; text-align: right; }
-  }
+
 
   /* Dos columnas siempre */
   .grilla {
@@ -203,27 +200,23 @@
 
 <section class="controles" aria-label="Filtrar y ordenar artículos">
   <div class="filtros" id="filtros" role="group" aria-label="Estado de los artículos">
-    <button type="button" class="activo" data-filtro="todos" aria-pressed="true">Todos <span class="cantidad" data-cantidad="todos"></span></button>
-    <button type="button" data-filtro="disponible" aria-pressed="false">Disponibles <span class="cantidad" data-cantidad="disponible"></span></button>
+    <button type="button" class="activo" data-filtro="disponible" aria-pressed="true">Disponibles <span class="cantidad" data-cantidad="disponible"></span></button>
     <button type="button" data-filtro="reservado" aria-pressed="false">Reservados <span class="cantidad" data-cantidad="reservado"></span></button>
     <button type="button" data-filtro="vendido" aria-pressed="false">Vendidos <span class="cantidad" data-cantidad="vendido"></span></button>
   </div>
-  <details class="orden-desplegable">
+  <details class="orden-desplegable" id="panelOrden">
     <summary>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h6"/></svg>
-      <span>Ordenar</span><span class="orden-elegido" id="ordenElegido">Orden original</span>
+      <span id="ordenElegido">Ordenar por: nombre A–Z</span>
     </summary>
-    <div class="ordenar">
-    <label for="orden">Ordenar por</label>
-    <select id="orden">
-      <option value="original">Orden original</option>
-      <option value="nombre-asc">Nombre: A a Z</option>
-      <option value="nombre-desc">Nombre: Z a A</option>
-      <option value="precio-asc">Precio: menor a mayor</option>
-      <option value="precio-desc">Precio: mayor a menor</option>
-    </select>
-  </div>
-    <p class="nota-orden">Disponibles primero, reservados después y vendidos al final. Al ordenar por precio, se comparan en pesos: USD 1 = $40.</p>
+    <fieldset class="opciones-orden" id="opcionesOrden">
+      <legend class="resultado">Elegí el orden de los artículos</legend>
+      <label><input type="radio" name="orden" value="nombre-asc" checked> <span>Nombre A–Z</span></label>
+      <label><input type="radio" name="orden" value="nombre-desc"> <span>Nombre Z–A</span></label>
+      <label><input type="radio" name="orden" value="precio-asc"> <span>Precio: menor a mayor</span></label>
+      <label><input type="radio" name="orden" value="precio-desc"> <span>Precio: mayor a menor</span></label>
+    </fieldset>
+    <p class="nota-orden">Para comparar precios: USD 1 = $40.</p>
   </details>
   <p class="resultado" id="resultado" role="status" aria-live="polite"></p>
 </section>
@@ -595,8 +588,8 @@
 
 
 
-  let filtroActual = "todos";
-  let ordenActual = "original";
+  let filtroActual = "disponible";
+  let ordenActual = "nombre-asc";
   const comparadorNombre = new Intl.Collator("es", { sensitivity: "base", numeric: true });
   const pesoEstado = { disponible: 0, reservado: 1, vendido: 2 };
 
@@ -626,7 +619,7 @@
   function dibujar(filtro) {
     grilla.innerHTML = "";
     const orden = indicesVisibles(filtro, ordenActual);
-    const notas = ["Disponibles primero, reservados después y vendidos al final."];
+    const notas = [];
     if (ordenActual.startsWith("precio-")) notas.push("Precios comparados en pesos: USD 1 = $40.");
     document.getElementById("resultado").textContent = orden.length + (orden.length === 1 ? " artículo. " : " artículos. ") + notas.join(" ");
     if (!orden.length) grilla.innerHTML = '<p class="vacio">No hay artículos en este estado por ahora.</p>';
@@ -690,10 +683,17 @@
     });
     dibujar(filtroActual);
   };
-  document.getElementById("orden").onchange = e => {
+  document.getElementById("opcionesOrden").onchange = e => {
+    if (!e.target.matches('input[name="orden"]')) return;
     ordenActual = e.target.value;
-    document.getElementById("ordenElegido").textContent = e.target.options[e.target.selectedIndex].text;
+    const etiquetas = {
+      "nombre-asc": "nombre A–Z", "nombre-desc": "nombre Z–A",
+      "precio-asc": "precio de menor a mayor", "precio-desc": "precio de mayor a menor"
+    };
+    document.getElementById("ordenElegido").textContent = "Ordenar por: " + etiquetas[ordenActual];
     dibujar(filtroActual);
+    document.getElementById("panelOrden").open = false;
+    document.querySelector("#panelOrden summary").focus();
   };
 
   const aviso = document.getElementById("avisoRetiro");
@@ -709,7 +709,7 @@
   document.getElementById("btnGeneral").href = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent("Hola Nico! Tengo una consulta sobre la venta por mudanza.");
 
 
-  dibujar("todos");
+  dibujar(filtroActual);
 </script>
 </body>
 </html>
