@@ -213,7 +213,7 @@
     "estado": "disponible"
   },
   {
-    "nombre": "Bici Emi",
+    "nombre": "Bicicleta niña Roma R16",
     "foto": "fotos/bici-emi.jpg",
     "precioMercado": 5500,
     "precioVenta": 3000,
@@ -253,10 +253,10 @@
     "estado": "disponible"
   },
   {
-    "nombre": "Torre Marti",
+    "nombre": "Torre de aprendizaje Montessori",
     "foto": "fotos/torre-marti.jpg",
-    "precioMercado": 6000,
-    "precioVenta": 3000,
+    "precioMercado": 3000,
+    "precioVenta": 1500,
     "usado": "Excelente",
     "tiempoUso": "",
     "descripcion": "Consultame por WhatsApp para más detalles.",
@@ -281,6 +281,26 @@
     "tiempoUso": "",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
+  },
+  {
+    "nombre": "Licuadora Moulinex Powermix con jarra de vidrio",
+    "foto": "fotos/licuadora.jpg",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "usado": "Excelente",
+    "estado": "disponible",
+    "precioVenta": 1200,
+    "precioMercado": 1500,
+    "tiempoUso": "Sin abrir"
+  },
+  {
+    "nombre": "Tostadora Punktal doble bandeja 800 W",
+    "foto": "fotos/tostadora.jpg",
+    "descripcion": "Consultame por WhatsApp para más detalles.",
+    "usado": "Excelente",
+    "estado": "disponible",
+    "precioVenta": 500,
+    "precioMercado": 800,
+    "tiempoUso": ""
   },
   {
     "nombre": "Caloventilador Xion 1000/2000 W, negro",
@@ -313,12 +333,12 @@
     "estado": "disponible"
   },
   {
-    "nombre": "Tele living",
+    "nombre": "Televisor TCL 50\"",
     "foto": "fotos/tele-living.jpg",
     "precioMercado": 24000,
     "precioVenta": 18000,
     "usado": "Excelente",
-    "tiempoUso": "",
+    "tiempoUso": "8 meses",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
   },
@@ -423,7 +443,7 @@
     "estado": "disponible"
   },
   {
-    "nombre": "Auto",
+    "nombre": "Auto Volkswagen Nivus Comfortline 2023",
     "moneda": "USD",
     "foto": "fotos/auto.jpg",
     "precioMercado": 23000,
@@ -431,7 +451,8 @@
     "usado": "Muy bueno",
     "tiempoUso": "",
     "descripcion": "Consultame por WhatsApp para más detalles.",
-    "estado": "disponible"
+    "estado": "disponible",
+    "kilometraje": "60.000 km"
   },
   {
     "nombre": "Aspiradora Punktal PK-8208 2 l 1600 W",
@@ -439,16 +460,6 @@
     "precioMercado": 2400,
     "precioVenta": 1800,
     "usado": "Excelente",
-    "tiempoUso": "",
-    "descripcion": "Consultame por WhatsApp para más detalles.",
-    "estado": "disponible"
-  },
-  {
-    "nombre": "Cosas de playa",
-    "foto": "fotos/cosas-de-playa.jpg",
-    "precioMercado": 3000,
-    "precioVenta": 1000,
-    "usado": "Muy bueno",
     "tiempoUso": "",
     "descripcion": "Consultame por WhatsApp para más detalles.",
     "estado": "disponible"
@@ -474,7 +485,7 @@
     "estado": "vendido"
   },
   {
-    "nombre": "Bici Jesi",
+    "nombre": "Bicicleta dama R26",
     "foto": "fotos/bici-jesi.jpg",
     "precioMercado": 0,
     "precioVenta": 8000,
@@ -569,6 +580,7 @@
         <p>${a.descripcion}</p>
         ${a.usado ? `<div class="dato"><strong>Estado de uso</strong>${a.usado}</div>` : ""}
         ${bloqueTiempoUso(a)}
+        ${a.kilometraje ? `<div class="dato"><strong>Kilometraje</strong>${a.kilometraje}</div>` : ""}
         <a class="btn-wsp ${disponible ? "" : "apagado"}" href="https://wa.me/${CONFIG.whatsapp}?text=${mensaje}" target="_blank" rel="noopener">
           ${disponible ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.100 3.200 5.100 4.500 1.900.800 2.600.900 3.500.800.600-.100 1.700-.700 2-1.400.200-.700.200-1.300.200-1.400-.100-.100-.300-.200-.600-.300zM12 2C6.500 2 2 6.500 2 12c0 1.800.5 3.500 1.300 5L2 22l5.200-1.300c1.400.8 3 1.200 4.800 1.200 5.500 0 10-4.500 10-10S17.500 2 12 2zm0 18.200c-1.500 0-3-.4-4.200-1.200l-.3-.2-3.100.8.8-3-.2-.3C4.200 15 3.800 13.500 3.800 12c0-4.500 3.700-8.200 8.200-8.200s8.200 3.700 8.200 8.200-3.700 8.200-8.200 8.200z"/></svg><span>Consúltame al WhatsApp</span>` : "Ya fue vendido"}
         </a>
