@@ -39,35 +39,50 @@
     box-shadow: 0 2px 8px rgba(31,53,80,0.10);
   }
   .aviso-retiro span { color: var(--acento); }
-  .controles {
-    max-width: 872px; margin: 18px auto; padding: 16px;
-    background: #fff; border: 1px solid #d6e6f2; border-radius: 20px;
-    box-shadow: 0 3px 12px rgba(31,53,80,0.06);
+  .controles { max-width: 900px; margin: 18px auto; padding: 0 14px; }
+  .filtros {
+    display: flex; gap: 8px; overflow-x: auto; padding: 3px 2px 10px;
+    scrollbar-width: thin; -webkit-overflow-scrolling: touch;
   }
-  .filtros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
   .filtros button {
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    min-height: 46px; padding: 10px 8px; border: 1px solid #d6e6f2;
-    border-radius: 12px; font: inherit; font-size: 0.9rem; font-weight: 600;
-    background: var(--fondo); color: var(--texto); cursor: pointer;
+    display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 7px;
+    min-height: 44px; padding: 9px 16px; border: 1.5px solid #bac6d0;
+    border-radius: 999px; font: inherit; font-size: 0.95rem;
+    background: #fff; color: var(--texto); cursor: pointer; white-space: nowrap;
   }
-  .filtros button:hover { background: var(--celeste); }
-  .filtros button.activo { background: var(--texto); border-color: var(--texto); color: #fff; }
-  .cantidad { padding: 1px 7px; border-radius: 999px; background: rgba(74,159,216,0.12); font-size: 0.8rem; }
-  .activo .cantidad { background: rgba(255,255,255,0.18); }
-  .ordenar { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .filtros button:hover { border-color: var(--acento); background: #f5faff; }
+  .filtros button.activo { background: #e8f4fe; border-color: #3483cf; color: #2268a8; font-weight: 600; }
+  .cantidad { font-size: 0.8rem; color: var(--suave); }
+  .activo .cantidad { color: #2268a8; }
+  .orden-desplegable { margin-top: 2px; border-bottom: 1px solid #d6e6f2; }
+  .orden-desplegable summary {
+    display: flex; align-items: center; gap: 9px; min-height: 46px;
+    padding: 8px 2px; color: #2268a8; cursor: pointer; list-style: none;
+  }
+  .orden-desplegable summary::-webkit-details-marker { display: none; }
+  .orden-desplegable summary::after {
+    content: ""; width: 8px; height: 8px; margin-left: auto; margin-right: 5px;
+    border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+    transform: rotate(45deg); transition: transform 0.15s;
+  }
+  .orden-desplegable[open] summary::after { transform: rotate(225deg); }
+  .orden-elegido { color: var(--suave); font-size: 0.8rem; margin-left: auto; }
+  .ordenar { display: flex; align-items: center; gap: 12px; padding: 8px 0 4px; }
   .ordenar label { font-size: 0.9rem; font-weight: 600; white-space: nowrap; }
   .ordenar select {
     flex: 1; min-width: 0; min-height: 46px; padding: 10px 12px;
     border: 1px solid #bfd5e6; border-radius: 12px; font: inherit;
     font-size: 1rem; color: var(--texto); background: #fff; cursor: pointer;
   }
-  .filtros button:focus-visible, .ordenar select:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
-  .resultado { margin: 12px 0 0; color: var(--suave); font-size: 0.85rem; }
+  .nota-orden { margin: 8px 0 14px; color: var(--suave); font-size: 0.8rem; }
+  .filtros button:focus-visible, .ordenar select:focus-visible, summary:focus-visible {
+    outline: 3px solid var(--acento); outline-offset: 2px;
+  }
+  .resultado { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .vacio { grid-column: 1 / -1; text-align: center; padding: 28px 16px; color: var(--suave); }
-  @media (max-width: 600px) {
-    .controles { margin: 18px 14px; padding: 12px; }
-    .filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 380px) {
+    .ordenar { flex-direction: column; align-items: stretch; gap: 6px; }
+    .orden-elegido { max-width: 48%; text-align: right; }
   }
 
   /* Dos columnas siempre */
@@ -159,8 +174,6 @@
   }
   .como-comprar strong { display: block; margin-bottom: 6px; font-size: 1.05rem; }
   .como-comprar ol { margin: 0; padding-left: 22px; }
-  .contador { text-align: center; color: var(--suave); font-weight: 600; margin: 0 14px 14px; }
-  .contador b { color: var(--texto); }
   .btn-general {
     display: flex; align-items: center; justify-content: center; gap: 10px;
     max-width: 520px; margin: 8px auto 0; text-decoration: none;
@@ -188,8 +201,6 @@
   </ol>
 </section>
 
-<p class="contador" id="contador"></p>
-
 <section class="controles" aria-label="Filtrar y ordenar artículos">
   <div class="filtros" id="filtros" role="group" aria-label="Estado de los artículos">
     <button type="button" class="activo" data-filtro="todos" aria-pressed="true">Todos <span class="cantidad" data-cantidad="todos"></span></button>
@@ -197,7 +208,12 @@
     <button type="button" data-filtro="reservado" aria-pressed="false">Reservados <span class="cantidad" data-cantidad="reservado"></span></button>
     <button type="button" data-filtro="vendido" aria-pressed="false">Vendidos <span class="cantidad" data-cantidad="vendido"></span></button>
   </div>
-  <div class="ordenar">
+  <details class="orden-desplegable">
+    <summary>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h6"/></svg>
+      <span>Ordenar</span><span class="orden-elegido" id="ordenElegido">Orden original</span>
+    </summary>
+    <div class="ordenar">
     <label for="orden">Ordenar por</label>
     <select id="orden">
       <option value="original">Orden original</option>
@@ -207,6 +223,8 @@
       <option value="precio-desc">Precio: mayor a menor</option>
     </select>
   </div>
+    <p class="nota-orden">Disponibles primero, reservados después y vendidos al final. Al ordenar por precio, se comparan en pesos: USD 1 = $40.</p>
+  </details>
   <p class="resultado" id="resultado" role="status" aria-live="polite"></p>
 </section>
 
@@ -674,6 +692,7 @@
   };
   document.getElementById("orden").onchange = e => {
     ordenActual = e.target.value;
+    document.getElementById("ordenElegido").textContent = e.target.options[e.target.selectedIndex].text;
     dibujar(filtroActual);
   };
 
@@ -686,9 +705,7 @@
     aviso.style.display = "none";
   }
 
-  const nDisp = ARTICULOS.filter(a => a.estado === "disponible").length;
   document.getElementById("piePagina").textContent = ["Venta por mudanza", CONFIG.zonaRetiro, CONFIG.fechaRetiro ? "Retiro " + CONFIG.fechaRetiro : ""].filter(Boolean).join(" · ");
-  document.getElementById("contador").innerHTML = "<b>" + nDisp + " de " + ARTICULOS.length + "</b> artículos disponibles";
   document.getElementById("btnGeneral").href = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent("Hola Nico! Tengo una consulta sobre la venta por mudanza.");
 
 
