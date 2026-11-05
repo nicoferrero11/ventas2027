@@ -39,16 +39,36 @@
     box-shadow: 0 2px 8px rgba(31,53,80,0.10);
   }
   .aviso-retiro span { color: var(--acento); }
-  .filtros {
-    display: flex; gap: 8px; justify-content: center;
-    flex-wrap: wrap; padding: 18px 14px;
+  .controles {
+    max-width: 872px; margin: 18px auto; padding: 16px;
+    background: #fff; border: 1px solid #d6e6f2; border-radius: 20px;
+    box-shadow: 0 3px 12px rgba(31,53,80,0.06);
   }
+  .filtros { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
   .filtros button {
-    border: none; border-radius: 999px; padding: 11px 18px;
-    font-size: 1rem; background: var(--celeste); color: var(--texto);
-    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 46px; padding: 10px 8px; border: 1px solid #d6e6f2;
+    border-radius: 12px; font: inherit; font-size: 0.9rem; font-weight: 600;
+    background: var(--fondo); color: var(--texto); cursor: pointer;
   }
-  .filtros button.activo { background: var(--acento); color: #fff; }
+  .filtros button:hover { background: var(--celeste); }
+  .filtros button.activo { background: var(--texto); border-color: var(--texto); color: #fff; }
+  .cantidad { padding: 1px 7px; border-radius: 999px; background: rgba(74,159,216,0.12); font-size: 0.8rem; }
+  .activo .cantidad { background: rgba(255,255,255,0.18); }
+  .ordenar { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .ordenar label { font-size: 0.9rem; font-weight: 600; white-space: nowrap; }
+  .ordenar select {
+    flex: 1; min-width: 0; min-height: 46px; padding: 10px 12px;
+    border: 1px solid #bfd5e6; border-radius: 12px; font: inherit;
+    font-size: 1rem; color: var(--texto); background: #fff; cursor: pointer;
+  }
+  .filtros button:focus-visible, .ordenar select:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
+  .resultado { margin: 12px 0 0; color: var(--suave); font-size: 0.85rem; }
+  .vacio { grid-column: 1 / -1; text-align: center; padding: 28px 16px; color: var(--suave); }
+  @media (max-width: 600px) {
+    .controles { margin: 18px 14px; padding: 12px; }
+    .filtros { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
 
   /* Dos columnas siempre */
   .grilla {
@@ -170,12 +190,25 @@
 
 <p class="contador" id="contador"></p>
 
-<div class="filtros" id="filtros" style="padding-top:0;">
-  <button class="activo" data-filtro="todos">Todos</button>
-  <button data-filtro="disponible">Disponibles</button>
-  <button data-filtro="reservado">Reservados</button>
-  <button data-filtro="vendido">Vendidos</button>
-</div>
+<section class="controles" aria-label="Filtrar y ordenar artículos">
+  <div class="filtros" id="filtros" role="group" aria-label="Estado de los artículos">
+    <button type="button" class="activo" data-filtro="todos" aria-pressed="true">Todos <span class="cantidad" data-cantidad="todos"></span></button>
+    <button type="button" data-filtro="disponible" aria-pressed="false">Disponibles <span class="cantidad" data-cantidad="disponible"></span></button>
+    <button type="button" data-filtro="reservado" aria-pressed="false">Reservados <span class="cantidad" data-cantidad="reservado"></span></button>
+    <button type="button" data-filtro="vendido" aria-pressed="false">Vendidos <span class="cantidad" data-cantidad="vendido"></span></button>
+  </div>
+  <div class="ordenar">
+    <label for="orden">Ordenar por</label>
+    <select id="orden">
+      <option value="original">Orden original</option>
+      <option value="nombre-asc">Nombre: A a Z</option>
+      <option value="nombre-desc">Nombre: Z a A</option>
+      <option value="precio-asc">Precio: menor a mayor</option>
+      <option value="precio-desc">Precio: mayor a menor</option>
+    </select>
+  </div>
+  <p class="resultado" id="resultado" role="status" aria-live="polite"></p>
+</section>
 
 <main class="grilla" id="grilla"></main>
 
@@ -544,10 +577,41 @@
 
 
 
+  let filtroActual = "todos";
+  let ordenActual = "original";
+  const comparadorNombre = new Intl.Collator("es", { sensitivity: "base", numeric: true });
+  const pesoEstado = { disponible: 0, reservado: 1, vendido: 2 };
+
+  function compararArticulos(x, y, criterio) {
+    const a = ARTICULOS[x], b = ARTICULOS[y];
+    const estado = pesoEstado[a.estado] - pesoEstado[b.estado];
+    if (estado) return estado;
+    const nombre = comparadorNombre.compare(a.nombre, b.nombre);
+    if (criterio === "nombre-asc") return nombre || x - y;
+    if (criterio === "nombre-desc") return -nombre || x - y;
+    if (criterio.startsWith("precio-")) {
+      const tieneA = a.precioVenta > 0, tieneB = b.precioVenta > 0;
+      if (tieneA !== tieneB) return tieneA ? -1 : 1;
+      const precioA = a.precioVenta * (a.moneda === "USD" ? 40 : 1);
+      const precioB = b.precioVenta * (b.moneda === "USD" ? 40 : 1);
+      return (criterio === "precio-asc" ? precioA - precioB : precioB - precioA) || nombre || x - y;
+    }
+    return x - y;
+  }
+
+  function indicesVisibles(filtro, criterio) {
+    return ARTICULOS.map((a, i) => i)
+      .filter(i => filtro === "todos" || ARTICULOS[i].estado === filtro)
+      .sort((x, y) => compararArticulos(x, y, criterio));
+  }
+
   function dibujar(filtro) {
     grilla.innerHTML = "";
-    const peso = { disponible: 0, reservado: 1, vendido: 2 };
-    const orden = ARTICULOS.map((a, i) => i).sort((x, y) => peso[ARTICULOS[x].estado] - peso[ARTICULOS[y].estado] || x - y);
+    const orden = indicesVisibles(filtro, ordenActual);
+    const notas = ["Disponibles primero, reservados después y vendidos al final."];
+    if (ordenActual.startsWith("precio-")) notas.push("Precios comparados en pesos: USD 1 = $40.");
+    document.getElementById("resultado").textContent = orden.length + (orden.length === 1 ? " artículo. " : " artículos. ") + notas.join(" ");
+    if (!orden.length) grilla.innerHTML = '<p class="vacio">No hay artículos en este estado por ahora.</p>';
     orden.forEach(i => {
       const a = ARTICULOS[i];
       if (filtro !== "todos" && a.estado !== filtro) return;
@@ -592,11 +656,25 @@
   fondoModal.onclick = e => { if (e.target === fondoModal) cerrar(); };
   document.addEventListener("keydown", e => { if (e.key === "Escape") cerrar(); });
 
+  document.querySelectorAll("[data-cantidad]").forEach(el => {
+    const filtro = el.dataset.cantidad;
+    el.textContent = filtro === "todos" ? ARTICULOS.length : ARTICULOS.filter(a => a.estado === filtro).length;
+  });
+
   document.getElementById("filtros").onclick = e => {
-    if (e.target.tagName !== "BUTTON") return;
-    document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("activo"));
-    e.target.classList.add("activo");
-    dibujar(e.target.dataset.filtro);
+    const boton = e.target.closest("button[data-filtro]");
+    if (!boton) return;
+    filtroActual = boton.dataset.filtro;
+    document.querySelectorAll(".filtros button").forEach(b => {
+      const activo = b === boton;
+      b.classList.toggle("activo", activo);
+      b.setAttribute("aria-pressed", String(activo));
+    });
+    dibujar(filtroActual);
+  };
+  document.getElementById("orden").onchange = e => {
+    ordenActual = e.target.value;
+    dibujar(filtroActual);
   };
 
   const aviso = document.getElementById("avisoRetiro");
