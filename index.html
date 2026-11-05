@@ -36,6 +36,7 @@
   .aviso-retiro {
     background: #fff; border-radius: 14px; padding: 12px 18px;
     margin: 18px auto 0; max-width: 520px; font-weight: 600;
+    font-size: 0.9rem; line-height: 1.5; overflow-wrap: anywhere;
     box-shadow: 0 2px 8px rgba(31,53,80,0.10);
   }
   .aviso-retiro span { color: var(--acento); }
@@ -74,7 +75,6 @@
   .opciones-orden label:hover { background: #e8f4fe; }
   .opciones-orden label:has(input:checked) { background: #e8f4fe; color: #2268a8; font-weight: 600; }
   .opciones-orden input { margin: 0; width: 18px; height: 18px; accent-color: #3483cf; flex: 0 0 auto; }
-  .nota-orden { margin: 8px 12px 14px; color: var(--suave); font-size: 0.8rem; }
   .filtros button:focus-visible, .opciones-orden input:focus-visible, summary:focus-visible {
     outline: 3px solid var(--acento); outline-offset: 2px;
   }
@@ -216,7 +216,6 @@
       <label><input type="radio" name="orden" value="precio-asc"> <span>Precio: menor a mayor</span></label>
       <label><input type="radio" name="orden" value="precio-desc"> <span>Precio: mayor a menor</span></label>
     </fieldset>
-    <p class="nota-orden">Para comparar precios: USD 1 = $40.</p>
   </details>
   <p class="resultado" id="resultado" role="status" aria-live="polite"></p>
 </section>
@@ -241,7 +240,7 @@
     whatsapp: "59899452458",   // número con código de país, sin + ni espacios
     moneda: "$",
     fechaRetiro: "durante febrero de 2027",   // dejalo vacío ("") para ocultar el cartel
-    zonaRetiro: "Buceo, Montevideo",
+    zonaRetiro: "Complejo Diamantis Plaza (Buceo, Montevideo)",
     notaRetiro: ""
   };
 
@@ -620,7 +619,6 @@
     grilla.innerHTML = "";
     const orden = indicesVisibles(filtro, ordenActual);
     const notas = [];
-    if (ordenActual.startsWith("precio-")) notas.push("Precios comparados en pesos: USD 1 = $40.");
     document.getElementById("resultado").textContent = orden.length + (orden.length === 1 ? " artículo. " : " artículos. ") + notas.join(" ");
     if (!orden.length) grilla.innerHTML = '<p class="vacio">No hay artículos en este estado por ahora.</p>';
     orden.forEach(i => {
