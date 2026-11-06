@@ -189,7 +189,10 @@
   .campo-busqueda input { flex: 1; min-width: 0; border: 1px solid #a5b9ca; border-radius: 12px; padding: 12px; min-height: 46px; font: inherit; background: #fff; color: var(--texto); }
   .limpiar-busqueda { min-height: 46px; padding: 8px 12px; border: 1px solid #a5b9ca; border-radius: 12px; background: #fff; color: var(--texto); font: inherit; cursor: pointer; }
   .limpiar-busqueda[hidden] { display: none; }
-  .tarjeta { min-width: 0; }
+  .tarjeta { min-width: 0; display: flex; flex-direction: column; }
+  .tarjeta > img { flex-shrink: 0; }
+  .tarjeta .info { flex: 1; display: flex; flex-direction: column; }
+  .tarjeta .precios { margin-top: auto; }
   .tarjeta h3 { overflow-wrap: anywhere; }
   .ver-detalle { width: 100%; min-height: 44px; margin-top: 12px; border: 1px solid #2268a8; border-radius: 10px; background: #e8f4fe; color: #205c91; font: inherit; font-weight: 600; cursor: pointer; }
   .ver-detalle:hover { background: #d6eaf9; }
@@ -240,12 +243,11 @@
   <details class="orden-desplegable" id="panelOrden">
     <summary>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h6"/></svg>
-      <span id="ordenElegido">Ordenar por: con foto primero</span>
+      <span id="ordenElegido">Ordenar por: nombre A–Z</span>
     </summary>
     <fieldset class="opciones-orden" id="opcionesOrden">
       <legend class="resultado">Elegí el orden de los artículos</legend>
-      <label><input type="radio" name="orden" value="fotos" checked> <span>Con foto primero</span></label>
-      <label><input type="radio" name="orden" value="nombre-asc"> <span>Nombre A–Z</span></label>
+      <label><input type="radio" name="orden" value="nombre-asc" checked> <span>Nombre A–Z</span></label>
       <label><input type="radio" name="orden" value="nombre-desc"> <span>Nombre Z–A</span></label>
       <label><input type="radio" name="orden" value="precio-asc"> <span>Precio: menor a mayor</span></label>
       <label><input type="radio" name="orden" value="precio-desc"> <span>Precio: mayor a menor</span></label>
@@ -621,14 +623,12 @@
 
 
 
-  const fotosPublicadas = new Set(["fotos/auto.jpg","fotos/bici-emi.jpg","fotos/cafetera.jpg","fotos/cochecito.jpg","fotos/heladera.jpg","fotos/juego-jardin-sillon.jpg","fotos/lavarropas.jpg","fotos/monitor.jpg","fotos/tele-living.jpg","fotos/tostadora.jpg","fotos/ventilador-de-pie.jpg","fotos/ventilador-negro.jpg"]);
   let consultaActual = "";
-  let actualizacionFotos = null;
   let focoAnterior = null;
   const normalizar = texto => String(texto).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es");
   const escapar = texto => String(texto).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   let filtroActual = "disponible";
-  let ordenActual = "fotos";
+  let ordenActual = "nombre-asc";
   const comparadorNombre = new Intl.Collator("es", { sensitivity: "base", numeric: true });
   const pesoEstado = { disponible: 0, reservado: 1, vendido: 2 };
 
@@ -637,7 +637,6 @@
     const estado = pesoEstado[a.estado] - pesoEstado[b.estado];
     if (estado) return estado;
     const nombre = comparadorNombre.compare(a.nombre, b.nombre);
-    if (criterio === "fotos") return Number(fotosPublicadas.has(b.foto)) - Number(fotosPublicadas.has(a.foto)) || nombre || x - y;
     if (criterio === "nombre-asc") return nombre || x - y;
     if (criterio === "nombre-desc") return -nombre || x - y;
     if (criterio.startsWith("precio-")) {
@@ -679,15 +678,6 @@
           ${a.estado === "disponible" ? `<button type="button" class="ver-detalle" aria-label="Ver detalle de ${escapar(a.nombre)}" aria-haspopup="dialog">Ver detalle</button>` : ""}
         </div>`;
       if (a.estado === "disponible") { t.onclick = () => abrir(i, t.querySelector(".ver-detalle")); } else { t.classList.add("sin-clic"); }
-      const foto = t.querySelector("img");
-      foto.onload = () => {
-        if (foto.getAttribute("src") !== a.foto || fotosPublicadas.has(a.foto)) return;
-        fotosPublicadas.add(a.foto);
-        if (ordenActual === "fotos") {
-          if (actualizacionFotos !== null) cancelAnimationFrame(actualizacionFotos);
-          actualizacionFotos = requestAnimationFrame(() => { actualizacionFotos = null; dibujar(filtroActual); });
-        }
-      };
       grilla.appendChild(t);
     });
   }
@@ -759,7 +749,6 @@
     if (!e.target.matches('input[name="orden"]')) return;
     ordenActual = e.target.value;
     const etiquetas = {
-      "fotos": "con foto primero",
       "nombre-asc": "nombre A–Z", "nombre-desc": "nombre Z–A",
       "precio-asc": "precio de menor a mayor", "precio-desc": "precio de mayor a menor"
     };
