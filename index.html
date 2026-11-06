@@ -9,7 +9,7 @@
     --fondo: #f2f8fd;
     --tarjeta: #ffffff;
     --texto: #1f3550;
-    --suave: #6b819b;
+    --suave: #52677f;
     --durazno: #fff0b8;   /* reservado: amarillo manteca */
     --menta: #c8ecda;     /* disponible */
     --lila: #dcebf8;      /* fondo de fotos vacías */
@@ -53,7 +53,7 @@
   }
   .filtros button:hover { border-color: var(--acento); background: #f5faff; }
   .filtros button.activo { background: #e8f4fe; border-color: #3483cf; color: #2268a8; font-weight: 600; }
-  .cantidad { font-size: 0.8rem; color: var(--suave); }
+  .cantidad { font-size: 0.9rem; color: var(--suave); }
   .activo .cantidad { color: #2268a8; }
   .orden-desplegable { margin-top: 2px; border-bottom: 1px solid #d6e6f2; }
   .orden-desplegable summary {
@@ -98,7 +98,7 @@
   .tarjeta .info { padding: 12px; }
   .tarjeta h3 { margin: 0 0 8px; font-size: 1rem; }
 
-  /* Precios: los dos visibles, con etiqueta, sin tachar */
+  /* Precio de venta */
   .precios { display: flex; flex-direction: column; gap: 4px; }
   .fila-precio { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .fila-precio .rotulo { font-size: 0.8rem; color: var(--suave); }
@@ -157,7 +157,7 @@
     cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 5;
   }
   .dato { background: var(--fondo); border-radius: 14px; padding: 12px 16px; margin: 12px 0; }
-  .dato strong { display: block; color: var(--suave); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .dato strong { display: block; color: var(--suave); font-size: 0.95rem; }
   .btn-wsp {
     display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;
     background: var(--whatsapp); color: #fff; font-weight: 700;
@@ -179,6 +179,27 @@
   }
   .zona-final { padding: 10px 14px 30px; }
   footer { text-align: center; color: var(--suave); padding: 20px; font-size: 0.9rem; }
+  .moneda-aviso { margin: 12px 0 0; font-size: 0.95rem; color: var(--texto); }
+  .estados-ayuda { margin-top: 12px; color: var(--texto); }
+  .estados-ayuda summary { cursor: pointer; min-height: 44px; padding: 10px 0; }
+  .estados-ayuda p { margin: 4px 0 10px; }
+  .busqueda { margin: 0 0 14px; }
+  .busqueda label { display: block; font-weight: 600; margin-bottom: 6px; }
+  .campo-busqueda { display: flex; gap: 8px; }
+  .campo-busqueda input { flex: 1; min-width: 0; border: 1px solid #a5b9ca; border-radius: 12px; padding: 12px; min-height: 46px; font: inherit; background: #fff; color: var(--texto); }
+  .limpiar-busqueda { min-height: 46px; padding: 8px 12px; border: 1px solid #a5b9ca; border-radius: 12px; background: #fff; color: var(--texto); font: inherit; cursor: pointer; }
+  .limpiar-busqueda[hidden] { display: none; }
+  .tarjeta { min-width: 0; }
+  .tarjeta h3 { overflow-wrap: anywhere; }
+  .ver-detalle { width: 100%; min-height: 44px; margin-top: 12px; border: 1px solid #2268a8; border-radius: 10px; background: #e8f4fe; color: #205c91; font: inherit; font-weight: 600; cursor: pointer; }
+  .ver-detalle:hover { background: #d6eaf9; }
+  button:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid #2268a8; outline-offset: 3px; }
+  @media (max-width: 430px) {
+    .tarjeta .fila-precio { flex-direction: column; gap: 0; }
+    .tarjeta .venta { font-size: 1.15rem; }
+    .filtros button { padding: 9px 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tarjeta, .orden-desplegable summary::after { transition: none; } .tarjeta:hover { transform: none; } }
 </style>
 </head>
 <body>
@@ -196,9 +217,21 @@
     <li>Escribime por WhatsApp para reservarlo.</li>
     <li>Te paso los datos para el pago y coordinamos el retiro.</li>
   </ol>
+  <p class="moneda-aviso">Precios en pesos uruguayos ($), salvo el auto, expresado en USD.</p>
+  <details class="estados-ayuda">
+    <summary>¿Qué significa cada estado?</summary>
+    <p><strong>Disponible:</strong> podés consultar para comprarlo.<br><strong>Reservado:</strong> acuerdo confirmado y seña recibida.<br><strong>Vendido:</strong> pago completo recibido.</p>
+  </details>
 </section>
 
-<section class="controles" aria-label="Filtrar y ordenar artículos">
+<section class="controles" aria-label="Buscar, filtrar y ordenar artículos">
+  <div class="busqueda">
+    <label for="buscar">Buscar artículos</label>
+    <div class="campo-busqueda">
+      <input type="search" id="buscar" placeholder="Por ejemplo: heladera, cama o Samsung" autocomplete="off" aria-controls="grilla">
+      <button type="button" id="limpiarBusqueda" class="limpiar-busqueda" hidden>Limpiar</button>
+    </div>
+  </div>
   <div class="filtros" id="filtros" role="group" aria-label="Estado de los artículos">
     <button type="button" class="activo" data-filtro="disponible" aria-pressed="true">Disponibles <span class="cantidad" data-cantidad="disponible"></span></button>
     <button type="button" data-filtro="reservado" aria-pressed="false">Reservados <span class="cantidad" data-cantidad="reservado"></span></button>
@@ -207,11 +240,12 @@
   <details class="orden-desplegable" id="panelOrden">
     <summary>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h6"/></svg>
-      <span id="ordenElegido">Ordenar por: nombre A–Z</span>
+      <span id="ordenElegido">Ordenar por: con foto primero</span>
     </summary>
     <fieldset class="opciones-orden" id="opcionesOrden">
       <legend class="resultado">Elegí el orden de los artículos</legend>
-      <label><input type="radio" name="orden" value="nombre-asc" checked> <span>Nombre A–Z</span></label>
+      <label><input type="radio" name="orden" value="fotos" checked> <span>Con foto primero</span></label>
+      <label><input type="radio" name="orden" value="nombre-asc"> <span>Nombre A–Z</span></label>
       <label><input type="radio" name="orden" value="nombre-desc"> <span>Nombre Z–A</span></label>
       <label><input type="radio" name="orden" value="precio-asc"> <span>Precio: menor a mayor</span></label>
       <label><input type="radio" name="orden" value="precio-desc"> <span>Precio: mayor a menor</span></label>
@@ -223,7 +257,7 @@
 <main class="grilla" id="grilla"></main>
 
 <div class="fondo-modal" id="fondoModal">
-  <div class="modal" id="modal"></div>
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitulo"></div>
 </div>
 
 <div class="zona-final">
@@ -416,7 +450,7 @@
     "estado": "disponible"
   },
   {
-    "nombre": "Juego de jardín: sillón con chaise + mesa",
+    "nombre": "Juego de exterior: sillones, módulo y mesa",
     "foto": "fotos/juego-jardin-sillon.jpg",
     "precioMercado": 28000,
     "precioVenta": 20000,
@@ -446,7 +480,7 @@
     "estado": "disponible"
   },
   {
-    "nombre": "Cama funcional - Divino",
+    "nombre": "Cama funcional Divino",
     "foto": "fotos/cama-funcional.jpg",
     "precioMercado": 24000,
     "precioVenta": 18000,
@@ -456,7 +490,7 @@
     "estado": "disponible"
   },
   {
-    "nombre": "Cama Emi - Divino",
+    "nombre": "Cama Divino con marinera y un colchón",
     "foto": "fotos/cama-emi.jpg",
     "precioMercado": 24000,
     "precioVenta": 18000,
@@ -587,8 +621,14 @@
 
 
 
+  const fotosPublicadas = new Set(["fotos/auto.jpg","fotos/bici-emi.jpg","fotos/cafetera.jpg","fotos/cochecito.jpg","fotos/heladera.jpg","fotos/juego-jardin-sillon.jpg","fotos/lavarropas.jpg","fotos/monitor.jpg","fotos/tele-living.jpg","fotos/tostadora.jpg","fotos/ventilador-de-pie.jpg","fotos/ventilador-negro.jpg"]);
+  let consultaActual = "";
+  let actualizacionFotos = null;
+  let focoAnterior = null;
+  const normalizar = texto => String(texto).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es");
+  const escapar = texto => String(texto).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   let filtroActual = "disponible";
-  let ordenActual = "nombre-asc";
+  let ordenActual = "fotos";
   const comparadorNombre = new Intl.Collator("es", { sensitivity: "base", numeric: true });
   const pesoEstado = { disponible: 0, reservado: 1, vendido: 2 };
 
@@ -597,6 +637,7 @@
     const estado = pesoEstado[a.estado] - pesoEstado[b.estado];
     if (estado) return estado;
     const nombre = comparadorNombre.compare(a.nombre, b.nombre);
+    if (criterio === "fotos") return Number(fotosPublicadas.has(b.foto)) - Number(fotosPublicadas.has(a.foto)) || nombre || x - y;
     if (criterio === "nombre-asc") return nombre || x - y;
     if (criterio === "nombre-desc") return -nombre || x - y;
     if (criterio.startsWith("precio-")) {
@@ -611,7 +652,7 @@
 
   function indicesVisibles(filtro, criterio) {
     return ARTICULOS.map((a, i) => i)
-      .filter(i => filtro === "todos" || ARTICULOS[i].estado === filtro)
+      .filter(i => (filtro === "todos" || ARTICULOS[i].estado === filtro) && normalizar(ARTICULOS[i].nombre + " " + ARTICULOS[i].descripcion).includes(normalizar(consultaActual.trim())))
       .sort((x, y) => compararArticulos(x, y, criterio));
   }
 
@@ -620,7 +661,9 @@
     const orden = indicesVisibles(filtro, ordenActual);
     const notas = [];
     document.getElementById("resultado").textContent = orden.length + (orden.length === 1 ? " artículo. " : " artículos. ") + notas.join(" ");
-    if (!orden.length) grilla.innerHTML = '<p class="vacio">No hay artículos en este estado por ahora.</p>';
+    if (!orden.length) grilla.innerHTML = consultaActual.trim()
+      ? '<p class="vacio">No encontramos artículos con esa búsqueda en este estado. Probá otra palabra o cambiá el filtro.</p>'
+      : '<p class="vacio">No hay artículos en este estado por ahora.</p>';
     orden.forEach(i => {
       const a = ARTICULOS[i];
       if (filtro !== "todos" && a.estado !== filtro) return;
@@ -628,42 +671,73 @@
       t.className = "tarjeta " + a.estado;
       t.innerHTML = `
         <span class="etiqueta ${a.estado}">${nombresEstado[a.estado]}</span>
-        <img src="${a.foto}" alt="${a.nombre}" onerror="this.onerror=null;this.src='${SIN_FOTO}'">
+        <img src="${a.foto}" alt="${escapar(a.nombre)}" onerror="this.onerror=null;this.src='${SIN_FOTO}'">
         ${sello(a)}
         <div class="info">
           <h3>${a.nombre}</h3>
           ${bloquePrecios(a)}
+          ${a.estado === "disponible" ? `<button type="button" class="ver-detalle" aria-label="Ver detalle de ${escapar(a.nombre)}" aria-haspopup="dialog">Ver detalle</button>` : ""}
         </div>`;
-      if (a.estado === "disponible") { t.onclick = () => abrir(i); } else { t.classList.add("sin-clic"); }
+      if (a.estado === "disponible") { t.onclick = () => abrir(i, t.querySelector(".ver-detalle")); } else { t.classList.add("sin-clic"); }
+      const foto = t.querySelector("img");
+      foto.onload = () => {
+        if (foto.getAttribute("src") !== a.foto || fotosPublicadas.has(a.foto)) return;
+        fotosPublicadas.add(a.foto);
+        if (ordenActual === "fotos") {
+          if (actualizacionFotos !== null) cancelAnimationFrame(actualizacionFotos);
+          actualizacionFotos = requestAnimationFrame(() => { actualizacionFotos = null; dibujar(filtroActual); });
+        }
+      };
       grilla.appendChild(t);
     });
   }
 
-  function abrir(i) {
+  function abrir(i, origen) {
     const a = ARTICULOS[i];
+    if (a.estado !== "disponible") return;
+    focoAnterior = origen || document.activeElement;
     const mensaje = encodeURIComponent("Hola Nico! Me interesa: " + a.nombre);
     const disponible = a.estado !== "vendido";
     modal.innerHTML = `
       <button class="cerrar" onclick="cerrar()" aria-label="Cerrar">✕</button>
-      <div class="foto-wrap"><img src="${a.foto}" alt="${a.nombre}" onerror="this.onerror=null;this.src='${SIN_FOTO}'">${sello(a)}</div>
+      <div class="foto-wrap"><img src="${a.foto}" alt="${escapar(a.nombre)}" onerror="this.onerror=null;this.src='${SIN_FOTO}'">${sello(a)}</div>
       <div class="cuerpo">
         <span class="etiqueta ${a.estado}" style="position:static;display:inline-block;margin-bottom:10px">${nombresEstado[a.estado]}</span>
-        <h2>${a.nombre}</h2>
+        <h2 id="modalTitulo">${escapar(a.nombre)}</h2>
         ${bloquePrecios(a)}
-        <p>${a.descripcion}</p>
+        <p>${escapar(a.descripcion)}</p>
         ${a.usado ? `<div class="dato"><strong>Estado de uso</strong>${a.usado}</div>` : ""}
         ${bloqueTiempoUso(a)}
         ${a.kilometraje ? `<div class="dato"><strong>Kilometraje</strong>${a.kilometraje}</div>` : ""}
         <a class="btn-wsp ${disponible ? "" : "apagado"}" href="https://wa.me/${CONFIG.whatsapp}?text=${mensaje}" target="_blank" rel="noopener">
-          ${disponible ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.100 3.200 5.100 4.500 1.900.800 2.600.900 3.500.800.600-.100 1.700-.700 2-1.400.200-.700.200-1.300.200-1.400-.100-.100-.300-.200-.600-.300zM12 2C6.500 2 2 6.500 2 12c0 1.800.5 3.500 1.300 5L2 22l5.200-1.300c1.400.8 3 1.200 4.800 1.200 5.500 0 10-4.500 10-10S17.500 2 12 2zm0 18.200c-1.500 0-3-.4-4.200-1.200l-.3-.2-3.100.8.8-3-.2-.3C4.200 15 3.800 13.500 3.800 12c0-4.500 3.700-8.200 8.200-8.200s8.200 3.700 8.200 8.200-3.700 8.200-8.200 8.200z"/></svg><span>Consúltame al WhatsApp</span>` : "Ya fue vendido"}
+          ${disponible ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.100 3.200 5.100 4.500 1.900.800 2.600.900 3.500.800.600-.100 1.700-.700 2-1.400.200-.700.200-1.300.200-1.400-.100-.100-.300-.200-.600-.300zM12 2C6.500 2 2 6.500 2 12c0 1.800.5 3.500 1.300 5L2 22l5.200-1.300c1.400.8 3 1.200 4.800 1.200 5.500 0 10-4.500 10-10S17.500 2 12 2zm0 18.200c-1.500 0-3-.4-4.200-1.200l-.3-.2-3.100.8.8-3-.2-.3C4.200 15 3.800 13.500 3.800 12c0-4.500 3.700-8.200 8.200-8.200s8.200 3.700 8.200 8.200-3.700 8.200-8.200 8.200z"/></svg><span>Consultar por WhatsApp</span>` : "Ya fue vendido"}
         </a>
       </div>`;
     fondoModal.classList.add("abierto");
+    modal.scrollTop = 0;
+    document.body.style.overflow = "hidden";
+    document.querySelectorAll("header, #comoComprar, .controles, #grilla, .zona-final, footer").forEach(el => { el.inert = true; });
+    modal.querySelector(".cerrar").focus();
   }
 
-  function cerrar() { fondoModal.classList.remove("abierto"); }
+  function cerrar() {
+    if (!fondoModal.classList.contains("abierto")) return;
+    fondoModal.classList.remove("abierto");
+    document.body.style.overflow = "";
+    document.querySelectorAll("header, #comoComprar, .controles, #grilla, .zona-final, footer").forEach(el => { el.inert = false; });
+    if (focoAnterior && focoAnterior.isConnected) focoAnterior.focus();
+  }
   fondoModal.onclick = e => { if (e.target === fondoModal) cerrar(); };
-  document.addEventListener("keydown", e => { if (e.key === "Escape") cerrar(); });
+  document.addEventListener("keydown", e => {
+    if (!fondoModal.classList.contains("abierto")) return;
+    if (e.key === "Escape") { e.preventDefault(); cerrar(); }
+    if (e.key === "Tab") {
+      const controles = modal.querySelectorAll('button, a[href], input, select, textarea, [tabindex="0"]');
+      const primero = controles[0], ultimo = controles[controles.length - 1];
+      if (e.shiftKey && document.activeElement === primero) { e.preventDefault(); ultimo.focus(); }
+      else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus(); }
+    }
+  });
 
   document.querySelectorAll("[data-cantidad]").forEach(el => {
     const filtro = el.dataset.cantidad;
@@ -685,6 +759,7 @@
     if (!e.target.matches('input[name="orden"]')) return;
     ordenActual = e.target.value;
     const etiquetas = {
+      "fotos": "con foto primero",
       "nombre-asc": "nombre A–Z", "nombre-desc": "nombre Z–A",
       "precio-asc": "precio de menor a mayor", "precio-desc": "precio de mayor a menor"
     };
@@ -692,6 +767,19 @@
     dibujar(filtroActual);
     document.getElementById("panelOrden").open = false;
     document.querySelector("#panelOrden summary").focus();
+  };
+
+  const buscador = document.getElementById("buscar");
+  const limpiarBusqueda = document.getElementById("limpiarBusqueda");
+  buscador.oninput = () => {
+    consultaActual = buscador.value;
+    limpiarBusqueda.hidden = !consultaActual;
+    dibujar(filtroActual);
+  };
+  limpiarBusqueda.onclick = () => {
+    buscador.value = "";
+    buscador.oninput();
+    buscador.focus();
   };
 
   const aviso = document.getElementById("avisoRetiro");
