@@ -161,8 +161,11 @@
     border-radius: 50%; border: none; background: #fff; font-size: 1.4rem;
     cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 5;
   }
-  .dato { background: var(--fondo); border-radius: 14px; padding: 12px 16px; margin: 12px 0; }
-  .dato strong { display: block; color: var(--suave); font-size: 0.95rem; }
+  .datos-articulo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0; padding: 12px 0; border-top: 1px solid #d6e6f2; border-bottom: 1px solid #d6e6f2; }
+  .datos-articulo > div { min-width: 0; }
+  .datos-articulo dt { color: var(--suave); font-size: 0.8rem; margin-bottom: 3px; }
+  .datos-articulo dd { margin: 0; font-size: 1rem; font-weight: 600; overflow-wrap: anywhere; }
+  .descripcion-articulo { margin: 12px 0 0; }
   .btn-wsp {
     display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;
     background: var(--whatsapp); color: #fff; font-weight: 700;
@@ -599,11 +602,16 @@
 
   function precio(n, moneda = CONFIG.moneda) { return n > 0 ? (moneda === "USD" ? "USD " : moneda) + n.toLocaleString("es-UY") : "Consultar precio"; }
 
-  function bloqueTiempoUso(a) {
-    const tiempo = String(a.tiempoUso || "").trim();
-    if (!tiempo) return "";
-    const seguro = tiempo.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-    return `<div class="dato"><strong>Tiempo de uso</strong>${seguro}</div>`;
+  function bloqueDatos(a) {
+    const datos = [
+      ["Estado de uso", a.usado],
+      ["Tiempo de uso", a.tiempoUso],
+      ["Kilometraje", a.kilometraje]
+    ].filter(([, valor]) => String(valor || "").trim());
+    if (!datos.length) return "";
+    return '<dl class="datos-articulo">' + datos.map(([titulo, valor]) =>
+      '<div><dt>' + escapar(titulo) + '</dt><dd>' + escapar(valor) + '</dd></div>'
+    ).join("") + '</dl>';
   }
 
   function bloquePrecios(a) {
@@ -692,10 +700,8 @@
         <span class="etiqueta ${a.estado}" style="position:static;display:inline-block;margin-bottom:10px">${nombresEstado[a.estado]}</span>
         <h2 id="modalTitulo">${escapar(a.nombre)}</h2>
         ${bloquePrecios(a)}
-        <p>${escapar(a.descripcion)}</p>
-        ${a.usado ? `<div class="dato"><strong>Estado de uso</strong>${a.usado}</div>` : ""}
-        ${bloqueTiempoUso(a)}
-        ${a.kilometraje ? `<div class="dato"><strong>Kilometraje</strong>${a.kilometraje}</div>` : ""}
+        ${bloqueDatos(a)}
+        <p class="descripcion-articulo">${escapar(a.descripcion)}</p>
       </div>
       </div>
       <div class="modal-acciones">
