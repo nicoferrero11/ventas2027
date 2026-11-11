@@ -215,10 +215,10 @@
   .visor-barra { display: flex; justify-content: flex-end; gap: 10px; padding: 12px; flex-shrink: 0; }
   .visor-barra button { min-height: 44px; padding: 8px 16px; border: 1px solid #b7cadd; border-radius: 12px; color: var(--texto); background: white; font: inherit; cursor: pointer; }
   .visor-lienzo { flex: 1; min-height: 0; overflow: auto; touch-action: pan-x pan-y pinch-zoom; }
-  .visor-imagen { display: flex; align-items: center; justify-content: center; min-width: 100%; min-height: 100%; border: 0; padding: 12px; background: transparent; cursor: zoom-in; }
-  .visor-imagen img { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100vh - 92px); max-height: calc(100dvh - 92px); object-fit: contain; }
+  .visor-imagen { display: flex; align-items: center; justify-content: center; width: 100%; min-width: 100%; min-height: 100%; border: 0; padding: 12px; background: transparent; cursor: zoom-in; }
+  .visor-imagen img { display: block; width: auto; height: auto; max-width: min(100%, 900px); max-height: min(760px, calc(100vh - 92px)); max-height: min(760px, calc(100dvh - 92px)); object-fit: contain; }
   .visor-foto.acercada .visor-imagen { width: max-content; cursor: zoom-out; }
-  .visor-foto.acercada img { width: min(1800px, 200vw); max-width: none; max-height: none; }
+  .visor-foto.acercada img { width: min(1200px, 150vw); max-width: 1200px; max-height: 1200px; object-fit: contain; }
 </style>
 </head>
 <body>
