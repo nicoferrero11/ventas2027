@@ -219,9 +219,6 @@
   .visor-imagen img { display: block; width: auto; height: auto; max-width: min(100%, 900px); max-height: min(760px, calc(100vh - 92px)); max-height: min(760px, calc(100dvh - 92px)); object-fit: contain; }
   .visor-foto.acercada .visor-imagen { width: max-content; cursor: zoom-out; }
   .visor-foto.acercada img { width: min(1200px, 150vw); max-width: 1200px; max-height: 1200px; object-fit: contain; }
-  .fotos-adicionales { padding: 12px 24px 0; }
-  .fotos-adicionales button { display: inline-flex; align-items: center; gap: 12px; border: 1px solid #bfd4e8; border-radius: 12px; background: #f4f8fc; color: #285e89; padding: 6px 12px 6px 6px; font: inherit; cursor: zoom-in; }
-  .fotos-adicionales img { width: 64px; height: 64px; object-fit: contain; border-radius: 8px; }
 </style>
 </head>
 <body>
@@ -337,8 +334,7 @@
     "usado": "Muy bueno",
     "tiempoUso": "",
     "descripcion": "Alfombra grande de tejido plano, en tonos beige y crudo, con diseño geométrico y textura en relieve. Medidas: 230 × 158 cm.",
-    "estado": "disponible",
-    "fotoDetalle": "fotos/alfombra-grande-detalle.jpg"
+    "estado": "disponible"
   },
   {
     "nombre": "Torre de aprendizaje Montessori",
@@ -666,7 +662,6 @@
       <button class="cerrar" onclick="cerrar()" aria-label="Cerrar">✕</button>
       <div class="modal-contenido">
       <div class="foto-wrap"><button type="button" class="foto-ampliar" onclick="abrirFoto(this)" aria-label="Ampliar foto de ${escapar(a.nombre)}" aria-haspopup="dialog"><img src="${a.foto}" alt="${escapar(a.nombre)}" onerror="this.onerror=null;this.src='${SIN_FOTO}'"><span aria-hidden="true">Ampliar ⤢</span></button>${sello(a)}</div>
-      ${a.fotoDetalle ? `<div class="fotos-adicionales"><button type="button" onclick="abrirFoto(this)" aria-label="Ampliar detalle de la trama de ${escapar(a.nombre)}" aria-haspopup="dialog"><img src="${a.fotoDetalle}" alt="Detalle de la trama de ${escapar(a.nombre)}"><span>Ver trama ⤢</span></button></div>` : ""}
       <div class="cuerpo">
         <span class="etiqueta ${a.estado}" style="position:static;display:inline-block;margin-bottom:10px">${nombresEstado[a.estado]}</span>
         <h2 id="modalTitulo">${escapar(a.nombre)}</h2>
