@@ -219,6 +219,9 @@
   .visor-imagen img { display: block; width: auto; height: auto; max-width: min(100%, 900px); max-height: min(760px, calc(100vh - 92px)); max-height: min(760px, calc(100dvh - 92px)); object-fit: contain; }
   .visor-foto.acercada .visor-imagen { width: max-content; cursor: zoom-out; }
   .visor-foto.acercada img { width: min(1200px, 150vw); max-width: 1200px; max-height: 1200px; object-fit: contain; }
+  @media (max-width: 600px) {
+    .foto-ampliar img[src^="fotos/cama-funcional.jpg"] { height: auto; max-height: 45dvh; }
+  }
 </style>
 </head>
 <body>
@@ -488,7 +491,7 @@
   },
   {
     "nombre": "Cama funcional Divino",
-    "foto": "fotos/cama-funcional.jpg",
+    "foto": "fotos/cama-funcional.jpg?v=2eaaba1",
     "precioMercado": 24000,
     "precioVenta": 18000,
     "usado": "Excelente",
